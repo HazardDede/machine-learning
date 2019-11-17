@@ -1,0 +1,27 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+jupyter = "*"
+pylint = "*"
+isort = "*"
+flake8 = "*"
+autoflake = "*"
+
+[packages]
+pandas = "*"
+sklearn = "*"
+nltk = "*"
+xgboost = "*"
+tqdm = "*"
+fire = "*"
+attr = "*"
+attrs = "*"
+joblib = "*"
+schema = "*"
+ruamel-yaml = "*"
+
+[requires]
+python_version = "3.7"
