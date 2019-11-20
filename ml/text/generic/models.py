@@ -23,8 +23,8 @@ def model_space(
         sgd_model = {
             'clf': (SGDClassifier(random_state=42), ),
             'p3': (None,),
-            'clf__alpha': (1e-3, 1e-4),
-            'clf__loss': ('hinge', 'log', 'modified_huber')
+            'clf__alpha': (1e-2, 1e-3, 1e-4, 1e-5),
+            'clf__loss': ('log', 'modified_huber')
         }
         space.append(sgd_model)
     

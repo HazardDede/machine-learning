@@ -1,5 +1,6 @@
 import itertools
 
+import joblib
 from imblearn.over_sampling import RandomOverSampler
 import numpy as np
 import pandas as pd
@@ -23,6 +24,8 @@ class Classifier(LogMixin):
     _ARTIFACT_CV_RESUTS = 'cv_results_all.csv'
     _ARTIFACT_CLASSIFICATION_REPORT = 'report.txt'
     _ARTIFACT_BEST_CLASSIFIER = 'best_classifier.txt'
+    _ARTIFACT_PREDICTIONS = 'predictions.csv'
+    _ARTIFACT_CONF_MATRIX = 'confusion_matrix.pkl'
 
     def __init__(self, artifact_repo, dataset_repo):
         """
@@ -165,3 +168,18 @@ class Classifier(LogMixin):
             y_pred
         )
         self._logger.info("\n%s", report)
+
+        conf_mat = metrics.confusion_matrix(y, y_pred)
+        joblib.dump(conf_mat, self._artifact_repo.artifact_path(self._ARTIFACT_CONF_MATRIX))
+
+        df_res = pd.concat([df, pd.DataFrame(y_pred, columns=("prediction",))], axis=1)
+
+        try:
+            y_proba = model.predict_proba(X)
+            df_probas = pd.DataFrame(y_proba, columns=[clazz + '__proba' for clazz in model.classes_])
+            df_res = pd.concat([df_res, df_probas], axis=1)
+        except:
+            import traceback
+            self._logger.warning("Couldn't calculate prediction probabilities:\n%s", traceback.format_exc())
+
+        df_res.to_csv(self._artifact_repo.artifact_path(self._ARTIFACT_PREDICTIONS), index=False)
