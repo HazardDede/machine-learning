@@ -4,14 +4,17 @@ from sklearn.ensemble import (
     RandomForestClassifier,
     GradientBoostingClassifier
 )
-from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import (
+    SGDClassifier,
+    LogisticRegression
+)
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
 
 
 def model_space(
     enable_sgd=True, enable_mnb=False, enable_rforest=False, enable_svc_linear=False,
-    enable_svc_nonlinear=False, enable_gboost=False
+    enable_svc_nonlinear=False, enable_gboost=False, enable_lregression=False
 ):
     space = []
     
@@ -76,8 +79,20 @@ def model_space(
         }
         space.append(gboost_model)
 
+    if enable_lregression:
+        # Logistic Regression
+        lregression_model = {
+            'clf': (LogisticRegression(
+                random_state=42,
+                solver='lbfgs',
+                multi_class='auto',
+                max_iter=1000
+            ),),
+            'clf__C': [0.1, 1, 10, 100, 1000, 10000]
+        }
+        space.append(lregression_model)
+
     if not space:
         raise RuntimeError("You have to enable at least one model.")
-
 
     return space

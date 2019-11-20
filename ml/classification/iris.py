@@ -1,4 +1,3 @@
-import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
@@ -53,7 +52,7 @@ class Classifier(LogMixin):
         )
         self._logger.info("\n%s", report)
 
-        joblib.dump(clf, self._artifact_repo.artifact_path(self._ARTIFACT_MODEL))
+        self._artifact_repo.save_model(clf)
 
     def predict(self):
         dataset = self._dataset_repo.fetch(Sets.IRIS)
@@ -61,8 +60,7 @@ class Classifier(LogMixin):
         X, y = dataset.data[dataset.feature_columns], dataset.data[dataset.target_column]
 
         # Retrieve the model
-        model_path = self._artifact_repo.artifact_path(self._ARTIFACT_MODEL)
-        model = joblib.load(model_path)
+        model = self._artifact_repo.load_model()
 
         # Use the model
         y_pred = model.predict(X)

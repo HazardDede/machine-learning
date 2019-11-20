@@ -1,6 +1,7 @@
 import itertools
 
-import joblib
+from imblearn.over_sampling import RandomOverSampler
+import numpy as np
 import pandas as pd
 from sklearn import metrics
 from sklearn.linear_model import SGDClassifier
@@ -52,12 +53,12 @@ class Classifier(LogMixin):
         df_cv = pd.DataFrame(clf.cv_results_)
         df_cv.to_csv(self._artifact_repo.artifact_path(self._ARTIFACT_CV_RESUTS), index=False)
 
-        joblib.dump(clf, self._artifact_repo.artifact_path(self._ARTIFACT_MODEL))
+        self._artifact_repo.save_model(clf)
 
     def train(
-        self, language=None, dataset=None, tfidft=True, tfidfv=True, sgd=True,
-        mnb=False, rforest=False, svc_linear=False, svc_nonlinear=False,
-        gboost=False
+        self, language=None, dataset=None, cvector=False, tfidf=False, sgd=False,
+        mnb=False, rforest=False, svc_linear=False, svc_nonlinear=False, gboost=False,
+        lregression=False, oversample=False
     ):
         """
         Trains the model against the specified dataset. 
@@ -72,14 +73,16 @@ class Classifier(LogMixin):
         Args:
             language (str): Language of the dataset.
             dataset (str): The name of the dataset.
-            tfidft (bool): Enable/disable the tf-idf transformer (default is True).
-            tfidfv (bool): Enable/disable the tf-idf vectoring (default is True).
-            sgd (bool): Enable/disable the sgd model (default is True).
+            cvector (bool): Enable/disable the count vectorizer(default is False).
+            tfidf (bool): Enable/disable the tf-idf vectoring (default is False).
+            sgd (bool): Enable/disable the sgd model (default is False).
             mnb (bool): Enable/disable the mnb model (default is False).
             rforest (bool): Enable/disable the random forest model (default is False).
             svc_linear (bool): Enable/disable the support vector with linar kernel (default is False).
-            svc_nonlinear (bool): Enable/disable the support vector with non-linar kernel (default is False).
+            svc_nonlinear (bool): Enable/disable the support vector with non-linear kernel (default is False).
             gboost (bool): Enable/disable the gboost model (default is False).
+            lregression (bool): Enable/disable the logistic regression model (default is False).
+            oversample (bool): Enable/disable oversampling for imbalanced classes.
         """
         language = str(language or 'english')
         dataset_name = str(dataset or Sets.BBC_NEWS)
@@ -89,9 +92,22 @@ class Classifier(LogMixin):
         Dataset.enforce_text_dataset(dataset)
         df, TEXT_LABEL, CLASS_LABEL = dataset.data, dataset.text_column, dataset.target_column
         X, y = df[TEXT_LABEL], df[CLASS_LABEL]
+
+        # if oversample:
+        #     # Do oversampling for imbalanced classes
+        #     X, y = RandomOverSampler().fit_sample(np.array(X).reshape(-1, 1), y)
+        #     X = [str(x) for x in X]
+
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, stratify=y, random_state=42, test_size=0.2
         )
+
+        if oversample:
+            # Do oversampling for imbalanced classes
+            X_train, y_train = RandomOverSampler(random_state=42).fit_sample(
+                np.array(X_train).reshape(-1, 1), y_train
+            )
+            X_train = [str(x) for x in X_train]
 
         # Train the model using Pipeline and GridSearch
         ppl = Pipeline([
@@ -101,11 +117,13 @@ class Classifier(LogMixin):
             ('clf', SGDClassifier())
         ])
 
-        features = feature_space(language, enable_tfidft=tfidft, enable_tfidfv=tfidfv)
+        features = feature_space(
+            language, enable_count_vector=cvector, enable_tfidf=tfidf
+        )
         models = model_space(
             enable_sgd=sgd, enable_mnb=mnb, enable_rforest=rforest, 
             enable_svc_linear=svc_linear, enable_svc_nonlinear=svc_nonlinear, 
-            enable_gboost=gboost
+            enable_gboost=gboost, enable_lregression=lregression
         )
 
         parameter_space = [{**pre, **clf} for pre, clf in itertools.product(features, models)]
@@ -138,8 +156,7 @@ class Classifier(LogMixin):
         X, y = df[TEXT_LABEL], df[CLASS_LABEL]
 
         # Retrieve the model
-        model_path = self._artifact_repo.artifact_path(self._ARTIFACT_MODEL)
-        model = joblib.load(model_path)
+        model = self._artifact_repo.load_model()
 
         # Use the model
         y_pred = model.predict(X)

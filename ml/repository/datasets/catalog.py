@@ -30,7 +30,8 @@ class CatalogItemConfig:
         sc.Optional(CONF_DESCRIPTION, default=''): sc.Use(str),
         CONF_LOCATION: {
             str: object
-        }
+        },
+        sc.Optional(str): object
     }
 
     @classmethod
@@ -68,15 +69,15 @@ class TextCatalogItemConfig:
             validated[CatalogItemConfig.CONF_LOCATION],
             base_path=base_path
         )
-        text = validated[cls.CONF_TEXT_TARGET]
+        target = validated[cls.CONF_TEXT_TARGET]
         feature = validated[cls.CONF_TEXT_TEXT]
-        data[text] = data[text].astype(str)
+        data[target] = data[target].astype(str)
         data[feature] = data[feature].astype(str)
         return TextDataset(
             data=data,
             description=validated[CatalogItemConfig.CONF_DESCRIPTION],
             text_column=feature,
-            target_column=text
+            target_column=target
         )
 
 
@@ -148,7 +149,7 @@ class Catalog:
 
     @classmethod
     def empty(cls, base_path: str):
-        return cls(base_path=base_path, config={})
+        return cls(base_path=base_path, config={cls.CONF_CATALOG: {}})
 
     def list(self):
         items = self._config[self.CONF_CATALOG]

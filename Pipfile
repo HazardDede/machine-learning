@@ -9,6 +9,8 @@ pylint = "*"
 isort = "*"
 flake8 = "*"
 autoflake = "*"
+seaborn = "*"
+matplotlib = "*"
 
 [packages]
 pandas = "*"
@@ -22,6 +24,7 @@ attrs = "*"
 joblib = "*"
 schema = "*"
 ruamel-yaml = "*"
+imblearn = "*"
 
 [requires]
 python_version = "3.7"
