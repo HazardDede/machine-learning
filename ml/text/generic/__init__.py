@@ -1,18 +1,17 @@
 import itertools
 
 import joblib
-from imblearn.over_sampling import RandomOverSampler
 import numpy as np
 import pandas as pd
+from imblearn.over_sampling import RandomOverSampler
 from sklearn import metrics
-from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.pipeline import Pipeline
 
 from ml import Context
 from ml.repository import Dataset, Sets
-from ml.text.generic.features import feature_space
-from ml.text.generic.models import model_space
+from ml.text.generic.features import feature_space, feature_steps
+from ml.text.generic.models import model_space, model_steps
 from ml.utils import LogMixin
 
 
@@ -37,14 +36,14 @@ class Classifier(LogMixin):
         self._dataset_repo = dataset_repo
 
     @classmethod
-    def from_context(cls):
+    def _from_context(cls):
         """Create a new instance by injecting the artifact and dataset repository
         from the application context."""
         return cls(
             artifact_repo=Context.artifacts,
             dataset_repo=Context.datasets
         )
-        
+
     def _store_artifacts(self, clf, report):
         best_clf_report = "Best Score: {}\n{}".format(clf.best_score_, clf.best_params_)
         self._logger.info("\n%s", best_clf_report)
@@ -64,7 +63,7 @@ class Classifier(LogMixin):
         lregression=False, oversample=False
     ):
         """
-        Trains the model against the specified dataset. 
+        Trains the model against the specified dataset.
 
         If the text language is any other than 'english' you have to specify it
         explicitly.
@@ -81,25 +80,22 @@ class Classifier(LogMixin):
             sgd (bool): Enable/disable the sgd model (default is False).
             mnb (bool): Enable/disable the mnb model (default is False).
             rforest (bool): Enable/disable the random forest model (default is False).
-            svc_linear (bool): Enable/disable the support vector with linar kernel (default is False).
-            svc_nonlinear (bool): Enable/disable the support vector with non-linear kernel (default is False).
+            svc_linear (bool): Enable/disable the support vector with linear kernel
+             (default is False).
+            svc_nonlinear (bool): Enable/disable the support vector with non-linear kernel
+             (default is False).
             gboost (bool): Enable/disable the gboost model (default is False).
             lregression (bool): Enable/disable the logistic regression model (default is False).
             oversample (bool): Enable/disable oversampling for imbalanced classes.
         """
         language = str(language or 'english')
         dataset_name = str(dataset or Sets.BBC_NEWS)
-        
+
         # Load data
         dataset = self._dataset_repo.fetch(dataset_name)
         Dataset.enforce_text_dataset(dataset)
         df, TEXT_LABEL, CLASS_LABEL = dataset.data, dataset.text_column, dataset.target_column
         X, y = df[TEXT_LABEL], df[CLASS_LABEL]
-
-        # if oversample:
-        #     # Do oversampling for imbalanced classes
-        #     X, y = RandomOverSampler().fit_sample(np.array(X).reshape(-1, 1), y)
-        #     X = [str(x) for x in X]
 
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, stratify=y, random_state=42, test_size=0.2
@@ -113,24 +109,24 @@ class Classifier(LogMixin):
             X_train = [str(x) for x in X_train]
 
         # Train the model using Pipeline and GridSearch
-        ppl = Pipeline([
-            ('p1', None),
-            ('p2', None),
-            ('p3', None),
-            ('clf', SGDClassifier())
-        ])
+        ppl = Pipeline(
+            feature_steps() + model_steps()
+        )
 
         features = feature_space(
             language, enable_count_vector=cvector, enable_tfidf=tfidf
         )
         models = model_space(
-            enable_sgd=sgd, enable_mnb=mnb, enable_rforest=rforest, 
-            enable_svc_linear=svc_linear, enable_svc_nonlinear=svc_nonlinear, 
+            enable_sgd=sgd, enable_mnb=mnb, enable_rforest=rforest,
+            enable_svc_linear=svc_linear, enable_svc_nonlinear=svc_nonlinear,
             enable_gboost=gboost, enable_lregression=lregression
         )
 
-        parameter_space = [{**pre, **clf} for pre, clf in itertools.product(features, models)]
-        clf = GridSearchCV(ppl, parameter_space, cv=5, iid=False, n_jobs=-1, verbose=50)
+        parameter_space = (
+            [{**pre, **clf}
+             for pre, clf in itertools.product(features, models)]
+        )
+        clf = GridSearchCV(ppl, parameter_space, cv=5, iid=False, n_jobs=-1, verbose=10)
         clf.fit(X_train, y_train)
 
         # Predict on hold-back test data
@@ -176,10 +172,15 @@ class Classifier(LogMixin):
 
         try:
             y_proba = model.predict_proba(X)
-            df_probas = pd.DataFrame(y_proba, columns=[clazz + '__proba' for clazz in model.classes_])
+            df_probas = pd.DataFrame(
+                y_proba,
+                columns=[clazz + '__proba' for clazz in model.classes_]
+            )
             df_res = pd.concat([df_res, df_probas], axis=1)
-        except:
+        except Exception:  # pylint: disable=broad-except
             import traceback
-            self._logger.warning("Couldn't calculate prediction probabilities:\n%s", traceback.format_exc())
+            self._logger.warning(
+                "Couldn't calculate prediction probabilities:\n%s", traceback.format_exc()
+            )
 
         df_res.to_csv(self._artifact_repo.artifact_path(self._ARTIFACT_PREDICTIONS), index=False)

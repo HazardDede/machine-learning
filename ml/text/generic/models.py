@@ -17,7 +17,7 @@ def model_space(
     enable_svc_nonlinear=False, enable_gboost=False, enable_lregression=False
 ):
     space = []
-    
+
     if enable_sgd:
         # SGD classifier
         sgd_model = {
@@ -27,7 +27,7 @@ def model_space(
             'clf__loss': ('log', 'modified_huber')
         }
         space.append(sgd_model)
-    
+
     if enable_mnb:
         # MultinomialNB classifier
         mnb_model = {
@@ -59,7 +59,7 @@ def model_space(
             'clf__gamma': ('scale', )  # Get rid of the deprecation warning -> unused
         }
         space.append(svc_lin_model)
-    
+
     if enable_svc_nonlinear:
         # SVC non-linear kernel
         svc_nonlin_model = {
@@ -96,3 +96,9 @@ def model_space(
         raise RuntimeError("You have to enable at least one model.")
 
     return space
+
+
+def model_steps():
+    return [
+        ('clf', SGDClassifier())
+    ]

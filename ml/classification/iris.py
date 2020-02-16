@@ -9,7 +9,7 @@ from ml.utils import LogMixin
 
 class Classifier(LogMixin):
     """A generic text classifier. Uses a grid search to find the best model
-    for the dataset."""
+    for the iris dataset."""
 
     _ARTIFACT_MODEL = 'model.pkl'
     _ARTIFACT_CV_RESUTS = 'cv_results_all.csv'
@@ -26,7 +26,7 @@ class Classifier(LogMixin):
         self._dataset_repo = dataset_repo
 
     @classmethod
-    def from_context(cls):
+    def _from_context(cls):
         """Create a new instance by injecting the artifact and dataset repository
         from the application context."""
         return cls(
@@ -42,7 +42,7 @@ class Classifier(LogMixin):
         X, y = dataset.data[dataset.feature_columns], dataset.data[dataset.target_column]
         X_train, X_test, y_train, y_test = train_test_split(X, y)
 
-        clf = RandomForestClassifier()
+        clf = RandomForestClassifier(n_estimators=100)
         clf.fit(X_train, y_train)
         y_pred = clf.predict(X_test)
 

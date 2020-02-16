@@ -26,7 +26,9 @@ class UnsupportedModelError(ArtifactError):
 
 class Repository(LogMixin):
     """Provides methods to store artifacts like models, cv results, ...."""
-    _DEFAULT_ARTIFACT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../artifacts'))
+    _DEFAULT_ARTIFACT_PATH = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '../artifacts')
+    )
 
     def __init__(self, project: str, base_path: str = None):
         self._project = str(project)

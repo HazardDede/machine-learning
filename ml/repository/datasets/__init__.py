@@ -47,7 +47,7 @@ class Repository(LogMixin):
 
     def fetch(self, dataset_name: str) -> Any:
         """Fetch the specified dataset.
-        
+
         Args:
             dataset_name: The name of the dataset to fetch.
 
@@ -57,7 +57,7 @@ class Repository(LogMixin):
             on the dataset to fetch.
         """
         loader_clazz = self._load_map.get(dataset_name)
-        
+
         if loader_clazz:
             real_dataset_name = dataset_name.split('/')[-1]
             dataset_path = os.path.abspath(

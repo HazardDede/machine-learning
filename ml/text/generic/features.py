@@ -42,3 +42,11 @@ def feature_space(language, enable_count_vector=True, enable_tfidf=True):
         raise RuntimeError("You have to enable at least one feature engineering technique.")
 
     return space
+
+
+def feature_steps():
+    return [
+        ('p1', None),
+        ('p2', None),
+        ('p3', None),
+    ]
