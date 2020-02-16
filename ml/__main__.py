@@ -4,7 +4,10 @@ import logging
 
 from ml import Context
 from ml.text.generic import Classifier as GenericTextClassifier
+from ml.rl.mountain import Learner as Mountain
+from ml.classification.animals import Classifier as AnimalsClassifier
 from ml.classification.iris import Classifier as IrisClassifier
+from ml.classification.digits import Classifier as DigitsClassifier
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -14,17 +17,25 @@ logging.basicConfig(
 
 class ClassificationModels:
     """Provided classification models."""
-    iris = IrisClassifier.from_context
+    animals = AnimalsClassifier._from_context
+    iris = IrisClassifier._from_context
+    digits = DigitsClassifier._from_context
+
+
+class RLModels:
+    """Provided reinforcement learning models."""
+    mountain = Mountain._from_context
 
 
 class TextModels:
     """Provided text models."""
-    generic = GenericTextClassifier.from_context
+    generic = GenericTextClassifier._from_context
 
 
 class Models:
     """Model categories."""
     text = TextModels
+    rl = RLModels
     classification = ClassificationModels
 
 
@@ -44,10 +55,10 @@ class Runner:
             Context.project = str(project)
         if base_path:
             Context.base_path = str(base_path)
-        
+
         self.artifacts = Context.artifacts
         self.datasets = Context.datasets
-        self.models = Models
+        self.models = Models()
 
 
 if __name__ == '__main__':

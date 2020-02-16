@@ -37,7 +37,7 @@ class ContextMeta(type):
         return cls._base_path
 
     @base_path.setter
-    def base_path(cls, value : str) -> None:
+    def base_path(cls, value: str) -> None:
         """Set the base path of the project."""
         cls._base_path = value
 
