@@ -29,13 +29,13 @@ clean: clean-pyc clean-build
 
 flake8:
 	flake8 \
-		--max-line-length 100 \
+		--max-line-length 120 \
 		--max-complexity 8 \
-		--ignore=E402,W503,Q000 \
+		--ignore=E402,W503,Q000,C901 \
 		$(SOURCE_PATH)
 
 pylint:
 	# Automatically uses the configuration: pylintrc
 	pylint $(SOURCE_PATH)
 
-lint: flake8 pylint
+lint: flake8
