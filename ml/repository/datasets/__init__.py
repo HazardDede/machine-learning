@@ -5,7 +5,7 @@ from typing import Any, List, Optional
 
 from ml.repository import Sets
 from ml.repository.datasets.catalog import Catalog
-from ml.repository.datasets.loader import BBCNews, Iris
+from ml.repository.datasets.loader import BBCNews, Iris, CatsVsDogs
 from ml.utils import LogMixin
 
 
@@ -32,7 +32,8 @@ class Repository(LogMixin):
 
         self._load_map = {
             Sets.BBC_NEWS: BBCNews,
-            Sets.IRIS: Iris
+            Sets.IRIS: Iris,
+            Sets.CATS_VS_DOGS: CatsVsDogs
         }
 
         catalog_path = os.path.join(self._base_path, self._CATALOG_NAME)

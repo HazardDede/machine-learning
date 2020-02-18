@@ -10,6 +10,7 @@ class Sets:
     # Dataset constants
     BBC_NEWS = 'text/bbc-news'
     IRIS = 'iris'
+    CATS_VS_DOGS = 'catsvsdogs'
 
 
 @attr.s
