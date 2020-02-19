@@ -5,6 +5,7 @@ import logging
 from ml import Context
 from ml.text.generic import Classifier as GenericTextClassifier
 from ml.rl.mountain import Learner as Mountain
+from ml.rl.blackjack import Learner as Blackjack
 from ml.classification.animals import Classifier as AnimalsClassifier
 from ml.classification.iris import Classifier as IrisClassifier
 from ml.classification.digits import Classifier as DigitsClassifier
@@ -25,6 +26,7 @@ class ClassificationModels:
 class RLModels:
     """Provided reinforcement learning models."""
     mountain = Mountain._from_context
+    blackjack = Blackjack._from_context
 
 
 class TextModels:

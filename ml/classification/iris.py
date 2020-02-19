@@ -1,3 +1,5 @@
+"""Iris dataset classification tasks."""
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
@@ -8,8 +10,7 @@ from ml.utils import LogMixin
 
 
 class Classifier(LogMixin):
-    """A generic text classifier. Uses a grid search to find the best model
-    for the iris dataset."""
+    """Trains a random forest classifier for the iris dataset."""
 
     _ARTIFACT_MODEL = 'model.pkl'
     _ARTIFACT_CV_RESUTS = 'cv_results_all.csv'
@@ -35,7 +36,7 @@ class Classifier(LogMixin):
         )
 
     def train(self):
-        """Train the iris classifier."""
+        """Train a random forst classifier on the iris dataset."""
         dataset = self._dataset_repo.fetch(Sets.IRIS)
         assert isinstance(dataset, ClassificationDataset)
 
@@ -55,6 +56,7 @@ class Classifier(LogMixin):
         self._artifact_repo.save_model(clf)
 
     def predict(self):
+        """Use the previously trained model to classify the entire iris dataset."""
         dataset = self._dataset_repo.fetch(Sets.IRIS)
         assert isinstance(dataset, ClassificationDataset)
         X, y = dataset.data[dataset.feature_columns], dataset.data[dataset.target_column]

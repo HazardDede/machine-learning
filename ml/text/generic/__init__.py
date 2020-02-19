@@ -126,7 +126,7 @@ class Classifier(LogMixin):
             [{**pre, **clf}
              for pre, clf in itertools.product(features, models)]
         )
-        clf = GridSearchCV(ppl, parameter_space, cv=5, iid=False, n_jobs=-1, verbose=10)
+        clf = GridSearchCV(ppl, parameter_space, cv=5, iid=False, n_jobs=-1, verbose=1)
         clf.fit(X_train, y_train)
 
         # Predict on hold-back test data

@@ -1,3 +1,5 @@
+"""Train a CNN to classify cats and dogs."""
+
 import numpy as np
 import tensorflow as tf
 from datetime import datetime
@@ -47,11 +49,11 @@ class Classifier(LogMixin):
         )
         return X, y
 
-    def train(self, epochs=5, examples=None):
-        """Train the network to classify cats and dogs.
+    def train(self, epochs=3, examples=None):
+        """Train the CNN to classify cats and dogs.
 
         Args:
-            epochs (int): Number of epochs to process.
+            epochs (int): Number of epochs to process. Default is 3.
             examples (Optional[int]): The number of examples to draw instead of processing all images.
         """
         dataset = self._dataset_repo.fetch(Sets.CATS_VS_DOGS)
@@ -92,7 +94,7 @@ class Classifier(LogMixin):
         model.save(model_path)
 
     def predict(self):
-        """Use the network to predict cats and dogs on new photos."""
+        """Use the network to predict cats and dogs on the entire dataset."""
         dataset = self._dataset_repo.fetch(Sets.CATS_VS_DOGS)
         assert isinstance(dataset, ClassificationDataset)
 
