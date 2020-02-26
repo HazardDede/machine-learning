@@ -83,7 +83,7 @@ class LearningBase:
         """Return the next best action for the given state."""
         raise NotImplementedError()
 
-    def update(self, state, action, new_state, reward):
+    def update(self, state, action, new_state, reward, goal):
         """Update the agent given the current state and action, the reward and the new state."""
         self.ep_cum_reward += reward
 
@@ -166,7 +166,7 @@ class QLearning(LearningBase):
         """Return the next best action for the given state."""
         return np.argmax(self.q_table[state])
 
-    def update(self, state, action, new_state, reward):
+    def update(self, state, action, new_state, reward, goal):
         """Update the q-table based on the current state and action, the reward and the new state."""
         self.ep_cum_reward += reward
         current_q = self.q_table[state + (action,)]

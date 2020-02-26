@@ -91,8 +91,8 @@ class Learner(LogMixin):
             no_of_actions=env.action_space.n,
             learning_rate=learning_rate,
             gamma=gamma,
-            low_q=-1,
-            high_q=1
+            low_q=5,
+            high_q=5
         )
 
         for episode in range(1, episodes + 1):
@@ -109,8 +109,8 @@ class Learner(LogMixin):
                 new_state, reward, done, _ = env.step(action)
                 new_discrete_state = discretizer.discretize(new_state)
 
-                qlearn.update(discrete_state, action, new_discrete_state, reward)
                 goal = new_state[0] >= env.goal_position
+                qlearn.update(discrete_state, action, new_discrete_state, reward, goal)
                 discrete_state = new_discrete_state
 
             qlearn.episode_finished(goal)

@@ -46,17 +46,18 @@ class Learner(LogMixin):
 
             done = False
             state = self._convert_state(env.reset())
-            reward = 0
             qlearn.episode_start()
+            goal = False
 
             while not done:
                 action = qlearn.action(state)
                 new_state, reward, done, _ = env.step(action)
                 new_state = self._convert_state(new_state)
-                qlearn.update(state, action, new_state, reward)
+                goal = reward > 0
+                qlearn.update(state, action, new_state, reward, goal)
                 state = new_state
 
-            qlearn.episode_finished(reward > 0)
+            qlearn.episode_finished(goal)
             if episode % summary_every == 0:
                 self._logger.info("Episode %s: %s", episode, qlearn.summary(summary_every))
                 path = self._artifact_repo.artifact_path(f'{episode}_qtable.pkl')

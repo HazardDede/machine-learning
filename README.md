@@ -1,10 +1,13 @@
 # machine-learning
 
-> Machine Learning sandbox
+> A machine learning / data science sandbox
 
-This package uses fire to run command. 
-If you have any troubles you could always put --help at the end
-of a command and see if the man page reveals any information you are looking for.
+
+## General
+
+This package uses fire to run commands. 
+If you have any troubles you could always put `--help` at the end
+of a command and see if the man page reveals any helpful information.
 
 ## Classification
 
@@ -68,7 +71,8 @@ python ml models rl blackjack baseline --episodes=200000 --project=blackjack-bas
 After that you can evaluate if your Q-Learning is actually better than the baseline:
 
 ```bash
-python ml models rl blackjack train --episodes=200000 --project=blackjack-qlearn --learning-rate=0.1 --gamma=0.95
+# Notice: Blackjack seems to be more successful with lower gammas...
+python ml models rl blackjack train --episodes=200000 --project=blackjack-qlearn --learning-rate=0.1 --gamma=0.1
 ```
 
 ### Mountain car
